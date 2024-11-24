@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Measurement Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9fafc;
+      color: #333;
+    }
+    header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    h1, h2 {
+      text-align: center;
+      color: #4a90e2;
+    }
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input[type="number"] {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    select {
+      width: calc(100% - 22px);
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #357ab8;
+    }
+    .result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Measurement Calculator</h1>
+  </header>
+  <div class="container">
+    <h2>Select a Shape</h2>
+    <select id="shapeSelector" onchange="displayInputs()">
+      <option value="">Select a shape</option>
+      <optgroup label="2D Shapes">
+        <option value="polygon">Regular Polygon</option>
+        <option value="rectangle">Rectangle</option>
+        <option value="trapezoid">Trapezoid</option>
+        <option value="parallelogram">Parallelogram</option>
+        <option value="rhombus">Rhombus</option>
+        <option value="circle">Circle</option>
+        <option value="semicircle">Semicircle</option>
+      </optgroup>
+      <optgroup label="3D Shapes">
+        <option value="cube">Cube</option>
+        <option value="rectangularPrism">Rectangular Prism</option>
+        <option value="triangularPrism">Triangular Prism</option>
+        <option value="hexagonalPrism">Hexagonal Prism</option>
+        <option value="sphere">Sphere</option>
+        <option value="cylinder">Cylinder</option>
+        <option value="cone">Cone</option>
+        <option value="hemisphere">Hemisphere</option>
+      </optgroup>
+    </select>
+    <div id="inputs"></div>
+    <button onclick="calculate()">Calculate</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function displayInputs() {
+      const shape = document.getElementById("shapeSelector").value;
+      const inputsDiv = document.getElementById("inputs");
+      inputsDiv.innerHTML = ""; // Clear previous inputs
+
+      if (!shape) return;
+
+      const inputTemplates = {
+        polygon: `
+          <label>Number of Sides (n):</label>
+          <input type="number" id="numSides" min="3" max="12">
+          <label>Side Length (s):</label>
+          <input type="number" id="sideLength" min="0">
+          <label>Or Area (for reverse calculation):</label>
+          <input type="number" id="polygonArea" min="0">
+        `,
+        rectangle: `
+          <label>Length:</label>
+          <input type="number" id="length" min="0">
+          <label>Width:</label>
+          <input type="number" id="width" min="0">
+          <label>Or Area (for reverse calculation):</label>
+          <input type="number" id="rectArea" min="0">
+        `,
+        trapezoid: `
+          <label>Base 1:</label>
+          <input type="number" id="base1" min="0">
+          <label>Base 2:</label>
+          <input type="number" id="base2" min="0">
+          <label>Height:</label>
+          <input type="number" id="height" min="0">
+          <label>Or Area (for reverse calculation):</label>
+          <input type="number" id="trapArea" min="0">
+        `,
+        parallelogram: `
+          <label>Base:</label>
+          <input type="number" id="base" min="0">
+          <label>Height:</label>
+          <input type="number" id="height" min="0">
+          <label>Or Area (for reverse calculation):</label>
+          <input type="number" id="paraArea" min="0">
+        `,
+        rhombus: `
+          <label>Diagonal 1:</label>
+          <input type="number" id="diagonal1" min="0">
+          <label>Diagonal 2:</label>
+          <input type="number" id="diagonal2" min="0">
+          <label>Or Area (for reverse calculation):</label>
+          <input type="number" id="rhombusArea" min="0">
+        `,
+        circle: `
+          <label>Radius:</label>
+          <input type="number" id="radius" min="0">
+          <label>Or Area (for reverse calculation):</label>
+          <input type="number" id="circleArea" min="0"> 
+        `,
+        semicircle: `
+          <label>Radius:</label>
+          <input type="number" id="radius" min="0">
+          <label>Or Area (for reverse calculation):</label>
+          <input type="number" id="semiArea" min="0">
+        `,
+        cube: `
+          <label>Side Length:</label>
+          <input type="number" id="sideLength" min="0">
+          <label>Or Volume (for reverse calculation):</label>
+          <input type="number" id="cubeVolume" min="0">
+        `,
+        rectangularPrism: `
+          <label>Length:</label>
+          <input type="number" id="length" min="0">
+          <label>Width:</label>
+          <input type="number" id="width" min="0">
+          <label>Height:</label>
+          <input type="number" id="height" min="0">
+          <label>Or Volume (for reverse calculation):</label>
+          <input type="number" id="rectPrismVolume" min="0">
+        `,
+        triangularPrism: `
+          <label>Base Area:</label>
+          <input type="number" id="baseArea" min="0">
+          <label>Height:</label>
+          <input type="number" id="height" min="0">
+          <label>Or Volume (for reverse calculation):</label>
+          <input type="number" id="triPrismVolume" min="0">
+        `,
+        hexagonalPrism: `
+          <label>Base Area:</label>
+          <input type="number" id="baseArea" min="0">
+          <label>Height:</label>
+          <input type="number" id="height" min="0">
+          <label>Or Volume (for reverse calculation):</label>
+          <input type="number" id="hexPrismVolume" min="0">
+        `,
+        sphere: `
+          <label>Radius:</label>
+          <input type="number" id="radius" min="0">
+          <label>Or Volume (for reverse calculation):</label>
+          <input type="number" id="sphereVolume" min="0">
+        `,
+        cylinder: `
+          <label>Radius:</label>
+          <input type="number" id="radius" min="0">
+          <label>Height:</label>
+          <input type="number" id="height" min="0">
+          <label>Or Volume (for reverse calculation):</label>
+          <input type="number" id="cylVolume" min="0">
+        `,
+        cone: `
+          <label>Radius:</label>
+          <input type="number" id="radius" min="0">
+          <label>Height:</label>
+          <input type="number" id="height" min="0">
+          <label>Or Volume (for reverse calculation):</label>
+          <input type="number" id="coneVolume" min="0">
+        `,
+        hemisphere: `
+          <label>Radius:</label>
+          <input type="number" id="radius" min="0">
+          <label>Or Volume (for reverse calculation):</label>
+          <input type="number" id="hemiVolume" min="0">
+        `
+      };
+
+      inputsDiv.innerHTML = inputTemplates[shape] || "";
+    }
+
+    function calculate() {
+      const shape = document.getElementById("shapeSelector").value;
+      const resultDiv = document.getElementById("result");
+      let result = "";
+
+      // Retrieve all possible inputs
+      const inputs = {
+        numSides: parseFloat(document.getElementById("numSides")?.value),
+        polygonArea: parseFloat(document.getElementById("polygonArea")?.value),
+        length: parseFloat(document.getElementById("length")?.value),
+        width: parseFloat(document.getElementById("width")?.value),
+        height: parseFloat(document.getElementById("height")?.value),
+        radius: parseFloat(document.getElementById("radius")?.value),
+        sideLength: parseFloat(document.getElementById("sideLength")?.value),
+        base1: parseFloat(document.getElementById("base1")?.value),
+        base2: parseFloat(document.getElementById("base2")?.value),
+        baseArea: parseFloat(document.getElementById("baseArea")?.value),
+        rectArea: parseFloat(document.getElementById("rectArea")?.value),
+        trapArea: parseFloat(document.getElementById("trapArea")?.value),
+        paraArea: parseFloat(document.getElementById("paraArea")?.value),
+        rhombusArea: parseFloat(document.getElementById("rhombusArea")?.value),
+        sphereVolume: parseFloat(document.getElementById("sphereVolume")?.value),
+        semiArea: parseFloat(document.getElementById("semiArea")?.value),
+        cubeVolume: parseFloat(document.getElementById("cubeVolume")?.value),
+        rectPrismVolume: parseFloat(document.getElementById("rectPrismVolume")?.value),
+        triPrismVolume: parseFloat(document.getElementById("triPrismVolume")?.value),
+        hexPrismVolume: parseFloat(document.getElementById("hexPrismVolume")?.value),
+        cylVolume: parseFloat(document.getElementById("cylVolume")?.value),
+        coneVolume: parseFloat(document.getElementById("coneVolume")?.value),
+        hemiVolume: parseFloat(document.getElementById("hemiVolume")?.value)
+      };
+
+      // Perform calculations based on shape
+      switch (shape) {
+        case "rectangle":
+          if (inputs.length && inputs.width) {
+            result = `Area: ${(inputs.length * inputs.width).toFixed(2)}`;
+          } else if (inputs.rectArea && inputs.width) {
+            result = `Length: ${(inputs.rectArea / inputs.width).toFixed(2)}`;
+          }
+          break;
+ 		case "polygon":
+          if (inputs.numSides && inputs.sideLength) {
+            const n = inputs.numSides;
+            const s = inputs.sideLength;
+            result = `Area: ${(n * s ** 2 / (4 * Math.tan(Math.PI / n))).toFixed(2)}`;
+          } else if (inputs.numSides && inputs.polygonArea) {
+            const n = inputs.numSides;
+            const A = inputs.polygonArea;
+            result = `Side Length: ${Math.sqrt((4 * A * Math.tan(Math.PI / n)) / n).toFixed(2)}`;
+          }
+          break;
+        case "trapezoid":
+          if (inputs.base1 && inputs.base2 && inputs.height) {
+            result = `Area: ${(((inputs.base1 + inputs.base2) * inputs.height) / 2).toFixed(2)}`;
+          } else if (inputs.trapArea && inputs.height && inputs.base1) {
+            result = `Base 2: ${((2 * inputs.trapArea) / inputs.height - inputs.base1).toFixed(2)}`;
+          }
+          break;
+
+        case "parallelogram":
+          if (inputs.base && inputs.height) {
+            result = `Area: ${(inputs.base * inputs.height).toFixed(2)}`;
+          } else if (inputs.paraArea && inputs.height) {
+            result = `Base: ${(inputs.paraArea / inputs.height).toFixed(2)}`;
+          }
+          break;
+
+        case "rhombus":
+          if (inputs.diagonal1 && inputs.diagonal2) {
+            result = `Area: ${((inputs.diagonal1 * inputs.diagonal2) / 2).toFixed(2)}`;
+          } else if (inputs.rhombusArea && inputs.diagonal1) {
+            result = `Diagonal 2: ${(2 * inputs.rhombusArea / inputs.diagonal1).toFixed(2)}`;
+          }
+          break;
+        case "circle":
+          if (inputs.radius) {
+            result = `Area: ${(Math.PI * inputs.radius ** 2).toFixed(2)}`;
+          } else if (inputs.circleArea) {
+            result = `Radius: ${(Math.sqrt(inputs.circleArea / Math.PI)).toFixed(2)}`;
+          }
+          break;
+        case "semicircle":
+          if (inputs.radius) {
+            result = `Area: ${((Math.PI * inputs.radius ** 2) / 2).toFixed(2)}`;
+          } else if (inputs.semiArea) {
+            result = `Radius: ${(Math.sqrt(inputs.semiArea * 2 / Math.PI)).toFixed(2)}`;
+          }
+          break;
+
+        case "cube":
+          if (inputs.sideLength) {
+            result = `Volume: ${(inputs.sideLength ** 3).toFixed(2)}`;
+          } else if (inputs.cubeVolume) {
+            result = `Side Length: ${(Math.cbrt(inputs.cubeVolume)).toFixed(2)}`;
+          }
+          break;
+
+        case "rectangularPrism":
+          if (inputs.length && inputs.width && inputs.height) {
+            result = `Volume: ${(inputs.length * inputs.width * inputs.height).toFixed(2)}`;
+          } else if (inputs.rectPrismVolume && inputs.length && inputs.width) {
+            result = `Height: ${(inputs.rectPrismVolume / (inputs.length * inputs.width)).toFixed(2)}`;
+          }
+          break;
+
+        case "triangularPrism":
+          if (inputs.baseArea && inputs.height) {
+            result = `Volume: ${(inputs.baseArea * inputs.height).toFixed(2)}`;
+          } else if (inputs.triPrismVolume && inputs.baseArea) {
+            result = `Height: ${(inputs.triPrismVolume / inputs.baseArea).toFixed(2)}`;
+          }
+          break;
+
+        case "hexagonalPrism":
+          if (inputs.baseArea && inputs.height) {
+            result = `Volume: ${(inputs.baseArea * inputs.height).toFixed(2)}`;
+          } else if (inputs.hexPrismVolume && inputs.baseArea) {
+            result = `Height: ${(inputs.hexPrismVolume / inputs.baseArea).toFixed(2)}`;
+          }
+          break;
+
+        case "sphere":
+          if (inputs.radius) {
+            result = `Volume: ${((4 / 3) * Math.PI * inputs.radius ** 3).toFixed(2)}`;
+          } else if (inputs.sphereVolume) {
+            result = `Radius: ${((3 * inputs.sphereVolume / (4 * Math.PI)) ** (1 / 3)).toFixed(2)}`;
+          }
+          break;
+
+        case "cylinder":
+          if (inputs.radius && inputs.height) {
+            result = `Volume: ${(Math.PI * inputs.radius ** 2 * inputs.height).toFixed(2)}`;
+          } else if (inputs.cylVolume && inputs.height) {
+            result = `Radius: ${(Math.sqrt(inputs.cylVolume / (Math.PI * inputs.height))).toFixed(2)}`;
+          }
+          break;
+
+        case "cone":
+          if (inputs.radius && inputs.height) {
+            result = `Volume: ${((1 / 3) * Math.PI * inputs.radius ** 2 * inputs.height).toFixed(2)}`;
+          } else if (inputs.coneVolume && inputs.height) {
+            result = `Radius: ${(Math.sqrt(inputs.coneVolume / ((1 / 3) * Math.PI * inputs.height))).toFixed(2)}`;
+          }
+          break;
+
+        case "hemisphere":
+          if (inputs.radius) {
+            result = `Volume: ${((2 / 3) * Math.PI * inputs.radius ** 3).toFixed(2)}`;
+          } else if (inputs.hemiVolume) {
+            result = `Radius: ${((3 * inputs.hemiVolume / (2 * Math.PI)) ** (1 / 3)).toFixed(2)}`;
+          }
+          break;
+      }
+
+      resultDiv.textContent = result || "Please provide valid inputs.";
+    }
+  </script>
+</body>
+</html>
